@@ -4,10 +4,10 @@ import type { Store } from '../types';
 import { stores as fallbackStores } from '../data/stores';
 import StoreCard from './StoreCard';
 
-// 新しいJSONデータをホストするGitHub GistのURL
+// JSONデータをホストするGitHubのRaw URL
 const WHISKEY_DATA_URL = 'https://raw.githubusercontent.com/9477781/my-gestwhisky-app-data/main/data/guest_whisky.json';
 
-// 新しいJSONのデータ構造に対応する型定義
+// JSONのデータ構造に対応する型定義
 interface RawStoreData {
   '店コード': number;
   '個店URL': string;
@@ -19,7 +19,7 @@ interface RawStoreData {
   'ゲストウィスキー5'?: string;
 }
 
-// レイアウトと再利用性を向上させるためのセクション用スタイル付きコンテナ
+// レイアウト用のスタイル付きコンテナ
 const SectionBox: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section className="bg-white rounded-lg shadow-lg border border-gray-200/60 p-6 md:p-8">
         <h3 className="font-baskerville text-3xl md:text-4xl font-bold text-[#000033] pl-4 border-l-4 border-[#bfa045] mb-6">
@@ -40,7 +40,14 @@ const WhiskeyRallyPage: React.FC = () => {
     useEffect(() => {
         const fetchStores = async () => {
             try {
-                const response = await fetch(WHISKEY_DATA_URL);
+                // ★★★★★ ここから修正 ★★★★★
+                // キャッシュを回避するために、URLに現在時刻のタイムスタンプを追加します。
+                const urlWithCacheBuster = `${WHISKEY_DATA_URL}?v=${new Date().getTime()}`;
+
+                // 新しいURLでデータを取得し、cache: 'no-cache'オプションも指定します。
+                const response = await fetch(urlWithCacheBuster, { cache: 'no-cache' });
+                // ★★★★★ ここまで修正 ★★★★★
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -125,10 +132,10 @@ const WhiskeyRallyPage: React.FC = () => {
                     {isLoading && <p className="text-center text-xl">店舗リストを読み込んでいます...</p>}
                     
                     {(!isLoading && (error || lastUpdated)) && (
-                      <div className="mb-4">
-                          {error && <p className="text-center text-red-600">{error}</p>}
-                          {lastUpdated && <p className="text-right text-lg text-gray-600">{`データ更新日: ${lastUpdated}`}</p>}
-                      </div>
+                        <div className="mb-4">
+                            {error && <p className="text-center text-red-600">{error}</p>}
+                            {lastUpdated && <p className="text-right text-lg text-gray-600">{`データ更新日: ${lastUpdated}`}</p>}
+                        </div>
                     )}
 
                     <div className="text-center my-6">
