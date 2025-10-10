@@ -5,7 +5,7 @@ import { stores as fallbackStores } from '../data/stores';
 import StoreCard from './StoreCard';
 
 // 新しいJSONデータをホストするGitHub GistのURL
-const WHISKEY_DATA_URL = 'https://github.com/9477781/my-gestwhisky-app-data/blob/main/data/guest_whisky.json';
+const WHISKEY_DATA_URL = 'https://raw.githubusercontent.com/9477781/my-gestwhisky-app-data/main/data/guest_whisky.json';
 
 // 新しいJSONのデータ構造に対応する型定義
 interface RawStoreData {
