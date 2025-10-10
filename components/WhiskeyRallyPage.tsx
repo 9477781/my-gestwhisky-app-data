@@ -4,7 +4,7 @@ import type { Store } from '../types';
 import { stores as fallbackStores } from '../data/stores';
 import StoreCard from './StoreCard';
 
-// JSONデータをホストするGitHubのRaw URL
+// JSONデータをホストする正規のGitHub Raw URLに戻しました
 const WHISKEY_DATA_URL = 'https://raw.githubusercontent.com/9477781/my-gestwhisky-app-data/main/data/guest_whisky.json';
 
 // JSONのデータ構造に対応する型定義
@@ -20,7 +20,7 @@ interface RawStoreData {
 }
 
 // レイアウト用のスタイル付きコンテナ
-const SectionBox: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const SectionBox: React.FC<{ title: React.ReactNode; children: React.ReactNode }> = ({ title, children }) => (
     <section className="bg-white rounded-lg shadow-lg border border-gray-200/60 p-6 md:p-8">
         <h3 className="font-baskerville text-3xl md:text-4xl font-bold text-[#000033] pl-4 border-l-4 border-[#bfa045] mb-6">
             {title}
@@ -60,7 +60,7 @@ const WhiskeyRallyPage: React.FC = () => {
                         rawStore['ゲストウィスキー3'],
                         rawStore['ゲストウィスキー4'],
                         rawStore['ゲストウィスキー5'],
-                    ].filter((whiskey): whiskey is string => !!whiskey);
+                    ].filter((whiskey): whiskey is string => !!whiskey && whiskey.trim() !== '');
 
                     return {
                         name: rawStore['店名'],
@@ -73,8 +73,9 @@ const WhiskeyRallyPage: React.FC = () => {
                 setLastUpdated(new Date().toLocaleDateString('ja-JP'));
             } catch (e) {
                 console.error("Failed to fetch remote data, using fallback.", e);
+                setError('データの読み込みに失敗しました。時間をおいて再度お試しください。');
                 setStores(fallbackStores);
-                setLastUpdated('2025/08/15');
+                setLastUpdated(null);
             } finally {
                 setIsLoading(false);
             }
@@ -87,8 +88,10 @@ const WhiskeyRallyPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="space-y-8">
                 <div className="bg-white p-6 md:p-8 shadow-lg rounded-lg border border-gray-200/60">
-                    <h2 className="font-baskerville text-4xl md:text-6xl font-bold text-center text-gray-800 mb-6 pb-4 border-b-2 border-gray-200">
-                        82 ALE HOUSE 20周年記念
+                    <h2 className="font-baskerville text-3xl sm:text-4xl md:text-6xl font-bold text-center text-gray-800 mb-6 pb-4 border-b-2 border-gray-200">
+                        82 ALE HOUSE
+                        <br className="sm:hidden" />
+                        {' '}20周年記念
                         <br />
                         ウィスキーラリー開催！
                     </h2>
@@ -96,21 +99,25 @@ const WhiskeyRallyPage: React.FC = () => {
                     <section className="text-center">
                         <p className="mb-2">
                             <strong className="block">
-                                <span className="bg-[#000033] text-white text-2xl font-baskerville italic px-3 py-1 shadow-md">
-                                    82 ALE HOUSE　おかげさまで20周年！
+                                <span className="bg-[#000033] text-white text-2xl font-baskerville italic px-3 py-1 shadow-md inline-block">
+                                    82 ALE HOUSE　<br className="sm:hidden" />おかげさまで20周年！
                                 </span>
                             </strong>
                         </p>
-                        <p className="text-3xl font-bold text-gray-800 mt-2">ウィスキーラリー開催</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-2">ウィスキーラリー開催</p>
                         <img src="https://www.pub-hub.com/uploads/other/285/image/251688030814.png" width="263" alt="Whiskey Rally" height="271" className="mx-auto my-6 transform transition-transform hover:scale-105" />
-                        <p className="max-w-4xl mx-auto text-gray-700 text-xl">
+                        <p className="max-w-4xl text-left sm:text-center sm:mx-auto text-gray-700 text-xl">
                             それぞれの店舗が推しウイスキーを【ゲストウィスキー】としてラインナップ！<br />各店のゲストウィスキーを愉しみながらスタンプを集めて景品をゲットしよう！
                         </p>
                     </section>
                 </div>
                 
                 <SectionBox title="期間">
-                    <p className="text-4xl font-semibold text-left text-[#000033]">2025年9月1日(月)〜12月31日(水)</p>
+                    <p className="text-3xl sm:text-4xl font-semibold text-left text-[#000033]">
+                        2025年9月1日(月)
+                        <br className="sm:hidden" />
+                        {' '}〜12月31日(水)
+                    </p>
                 </SectionBox>
                 
                 <SectionBox title="参加方法">
@@ -128,7 +135,7 @@ const WhiskeyRallyPage: React.FC = () => {
                     <p className="text-center">期間中は何度でもご参加いただけます♪</p>
                 </SectionBox>
 
-                <SectionBox title="各店の特別なゲストウィスキー">
+                <SectionBox title={<>各店の特別な<br className="sm:hidden" />ゲストウィスキー</>}>
                     {isLoading && <p className="text-center text-xl">店舗リストを読み込んでいます...</p>}
                     
                     {(!isLoading && (error || lastUpdated)) && (
@@ -139,7 +146,11 @@ const WhiskeyRallyPage: React.FC = () => {
                     )}
 
                     <div className="text-center my-6">
-                        <p className="text-xl font-bold">現在販売のゲストウィスキーラインナップ</p>
+                        <p className="text-xl font-bold">
+                            現在販売のゲストウィスキー
+                            <br className="sm:hidden" />
+                            {' '}ラインナップ
+                        </p>
                         <p className="text-red-600 mt-1">※売り切れの際はご了承下さい</p>
                     </div>
 
@@ -164,7 +175,7 @@ const WhiskeyRallyPage: React.FC = () => {
                 </SectionBox>
                 
                 <div className="bg-white p-6 md:p-8 shadow-lg rounded-lg border border-gray-200/60">
-                    <div className="text-center text-xl">
+                    <div className="text-left sm:text-center text-xl">
                         <p>これを機に飲んだことのないウィスキー、行ったことのない店舗に挑戦してみてください！</p>
                         <p className="mt-2">みなさまのご来店を心よりお待ちしております</p>
                     </div>
@@ -181,3 +192,4 @@ const WhiskeyRallyPage: React.FC = () => {
 };
 
 export default WhiskeyRallyPage;
+
